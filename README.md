@@ -1,5 +1,6 @@
 # YDLidar GS2 Python
 
+# WARNING: THIS STILL NEEDS TESTING WITH REGARDS TO THE DATA ANALYSIS OF THE LIDAR
  Python Class for interfacing with YDLidar GS2 + a point cloud preview  
 
 ## TODO
