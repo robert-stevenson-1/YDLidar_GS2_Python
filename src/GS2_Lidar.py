@@ -60,7 +60,7 @@ class GS2_Lidar:
     def initialise_device(self):
         """
         Initializes the device by performing the following actions:
-        
+
         - Opens the serial port if it is not already open.
         - Fetches the device address.
         - Fetches the device version information.
@@ -77,7 +77,7 @@ class GS2_Lidar:
     def fetch_device_address(self):
         """
         Fetches the device address from the command response and stores it in itself.
-        
+
         """
         # get the device address from the command response
         response = self.send_command(
@@ -217,8 +217,8 @@ class GS2_Lidar:
             + check_code
         )
 
-        print("Sending: ")
-        print(command)
+        # print("Sending: ")
+        # print(command)
 
         # Send a command to the lidar
         self.ser.write(command)
@@ -246,7 +246,7 @@ class GS2_Lidar:
         """
         Reads 322 bytes from the lidar and extracts the ambient light intensity and ranging points.
         Calculates the distance and intensity for each ranging point.
-        
+
         Returns:
             dist_list (list): A list of distances for each ranging point.
             intens_list (list): A list of intensities for each ranging point.
@@ -300,16 +300,22 @@ class GS2_Lidar:
                 if self.compensated_b0 > 1:
                     tempTheta = self.compensated_k0 * (80 - i) - self.compensated_b0
                 else:
-                    tempTheta = math.atan(self.compensated_k0 * (80 - i) - self.compensated_b0).real * 180 / math.pi
+                    tempTheta = (
+                        math.atan(
+                            self.compensated_k0 * (80 - i) - self.compensated_b0
+                        ).real
+                        * 180
+                        / math.pi
+                    )
 
-                # NOTE: make sure to get the real value of the trig function complex number result  
+                # NOTE: make sure to get the real value of the trig function complex number result
 
                 tempDist = (dist_list[i] - self.angle_p_x) / math.cos(
                     (self.angle_p_angle + self.bias - (tempTheta)) * math.pi / 180
                 ).real
-                
-                tempTheta = tempTheta * math.pi / 180
-                
+
+                # tempTheta = tempTheta * math.pi / 180
+
                 tempX = math.cos(
                     (self.angle_p_angle + self.bias) * math.pi / 180
                 ).real * tempDist * math.cos(tempTheta).real + math.sin(
@@ -317,7 +323,7 @@ class GS2_Lidar:
                 ).real * (
                     tempDist * math.sin(tempTheta).real
                 )
-                
+
                 tempY = -math.sin(
                     (self.angle_p_angle + self.bias) * math.pi / 180
                 ).real * tempDist * math.cos(tempTheta).real + math.cos(
@@ -325,30 +331,36 @@ class GS2_Lidar:
                 ).real * (
                     tempDist * math.sin(tempTheta).real
                 )
-                
+
                 tempX = tempX + self.angle_p_x
                 tempY = tempY - self.angle_p_y
-                
+
                 # prevent division by zero crash
-                if(tempX != 0.0):
+                if tempX != 0.0:
                     Dist = math.sqrt(tempX * tempX + tempY * tempY).real
                     theta = math.atan(tempY / tempX).real * 180 / math.pi
                 else:
                     Dist = 0
                     theta = 0
             else:
-                # point is right 
+                # point is right
                 if self.compensated_b1 > 1:
                     tempTheta = self.compensated_k1 * (160 - i) - self.compensated_b1
                 else:
-                    tempTheta = math.atan(self.compensated_k1 * (160 - i) - self.compensated_b1).real * 180 / math.pi
-                
+                    tempTheta = (
+                        math.atan(
+                            self.compensated_k1 * (160 - i) - self.compensated_b1
+                        ).real
+                        * 180
+                        / math.pi
+                    )
+
                 tempDist = (dist_list[i] - self.angle_p_x) / math.cos(
                     (self.angle_p_angle + self.bias - (tempTheta)) * math.pi / 180
                 ).real
-                
-                tempTheta = tempTheta * math.pi / 180
-                
+
+                # tempTheta = tempTheta * math.pi / 180
+
                 tempX = math.cos(
                     -(self.angle_p_angle + self.bias) * math.pi / 180
                 ).real * tempDist * math.cos(tempTheta).real + math.sin(
@@ -356,7 +368,7 @@ class GS2_Lidar:
                 ).real * (
                     tempDist * math.sin(tempTheta).real
                 )
-                
+
                 tempY = -math.sin(
                     -(self.angle_p_angle + self.bias) * math.pi / 180
                 ).real * tempDist * math.cos(tempTheta).real + math.cos(
@@ -364,17 +376,17 @@ class GS2_Lidar:
                 ).real * (
                     tempDist * math.sin(tempTheta).real
                 )
-                
+
                 tempX = tempX + self.angle_p_x
                 tempY = tempY + self.angle_p_y
-                
+
                 Dist = math.sqrt(tempX * tempX + tempY * tempY).real
                 theta = math.atan(tempY / tempX).real * 180 / math.pi
-            if (theta < 0):
+            if theta < 0:
                 theta = theta + 360
             distance_points.append(Dist)
             theta_points.append(theta)
-        
+
         return distance_points, theta_points
 
     def stop_scan(self):
