@@ -5,6 +5,8 @@
 # Lidar Data Visualizer
 
 from GS2_Lidar import GS2_Lidar
+import matplotlib.pyplot as plt
+import cmath as math
 
 # Main Entry point of the script
 if __name__ == "__main__":
@@ -14,16 +16,25 @@ if __name__ == "__main__":
     # start the lidar
     try:
         lidar.start_scan()
+        
+        plt.axes().set_xlim(-350, 350)
+        plt.axes().set_ylim(-10, 350)
 
         # get the scan data and print it constantly
         while True:
             distances, thetas = lidar.get_scan_data()
-            print("Distances:")
-            print(distances)
-            print("Angles:")
-            print(thetas)
-            print("==========================")
+            x = []
+            y = []
+
+            for i in range(len(distances)):
+                x.append(distances[i]*math.sin(thetas[i]).real)
+                y.append(distances[i]*math.cos(thetas[i]).real)
+            
+            plt.clf()
+            plt.scatter(x, y)
+            plt.pause(0.1)
+
     except KeyboardInterrupt:
-        pass
+        plt.close()
     finally:
         lidar.stop_scan()
